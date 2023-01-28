@@ -114,7 +114,7 @@ jobs:
             up --exit-code-from=sut
 
   recipe-tests:
-    runs-on: ubuntu-latest
+    runs-on: kvm
     needs: build
     strategy:
       fail-fast: false
@@ -142,6 +142,9 @@ jobs:
       - name: Repository checkout
         uses: actions/checkout@v3
 
+      - name: Check /dev/kvm exists
+        run: ls -la /dev
+
       - name: Install QEMU emulation binaries
         if: matrix.backend.install_qemu
         run: |
@@ -160,6 +163,7 @@ jobs:
         run:
           docker run
           --cgroupns=private
+          --device=/dev/kvm
           -v $(pwd)/tests:/tests
           -w /tests
           --tmpfs /scratch:exec
