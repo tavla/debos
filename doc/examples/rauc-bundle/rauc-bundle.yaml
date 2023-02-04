@@ -1,0 +1,87 @@
+# To test, from the root run:
+# go run cmd/debos/debos.go --artifactdir=out doc/examples/debian-example-ospack.yaml
+# go run cmd/debos/debos.go --artifactdir=out --scratchsize=16G doc/examples/rauc-bundle/rauc-bundle.yaml
+
+# TODO recreate key with no expiry & make a note of the command used pls
+# openssl req -x509 -newkey rsa:4096 -nodes -keyout demo.key.pem -out demo.cert.pem -subj "/O=rauc Inc./CN=rauc-demo"
+# openssl req -x509 -newkey rsa:4096 -nodes -keyout doc/examples/rauc-bundle/demo.key.pem -out doc/examples/rauc-bundle/demo.cert.pem -subj "/O=rauc Inc./CN=rauc-demo" -days 36500
+
+# TODO: move into tests dir and do some kind of test on the bundle postprocess rauc info potentially ?
+
+{{ $architecture := or .architecture "arm64" }}
+{{ $suite := or .suite "bullseye" }}
+{{ $ospack := or .ospack (printf "debian-example-ospack-%s-%s.tar.gz" $suite $architecture) }}
+
+architecture: {{ $architecture }}
+
+actions:
+  #- action: unpack
+  #  description: Unpack ospack tarball
+  #  file: debian-ospack.tar.gz
+  #  file: {{ $ospack }}
+
+  #- action: debootstrap
+  #  suite: bullseye
+  #  variant: minbase
+  #  merged-usr: true
+
+  # TODO overlay public key in recipe
+
+  - action: image-partition
+    description: Partition an image
+    imagename: rauc-bundle-test.img
+    imagesize: 4G
+    partitiontype: gpt
+    mountpoints:
+      - mountpoint: /
+        partition: systemA
+#      - mountpoint: /data
+#        partition: data
+    partitions:
+      - name: systemA
+        fs: ext4
+        start: 0%
+        end: 50%
+      - name: systemB
+        fs: ext4
+        start: 50%
+        end: 90%
+      - name: data
+        fs: ext4
+        start: 90%
+        end: 100%
+
+#  - action: rauc-bundle
+#    description: Create RAUC bundle
+#    bundle: test.raucb
+#    cert: test.cert.pem
+#    key: test.key.pem
+#    images:
+#      - name: test
+#        partition: test2
+
+  - action: run
+    command: mount
+
+  - action: rauc-bundle
+    description: Create RAUC bundle
+    bundle: test.raucb
+    # TODO keys are out of date, should the test create keys ?
+    cert: test.cert.pem
+    key: test.key.pem
+    metadata:
+      test: test
+      update:
+        compatible: Compatible1
+        version: Version1
+      hooks:
+        filename: bundle-hooks
+        hooks: install-check
+    # TODO add a name for the image (not sure what this means?)
+    images:
+      - name: system
+        partition: systemA
+        # TODO see if we need a manifest section or other keys ?
+        # TODO add optional hooks
+        hooks: blah
+        # TODO add a second image

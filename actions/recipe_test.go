@@ -58,6 +58,7 @@ actions:
   - action: ostree-deploy
   - action: overlay
   - action: pack
+  - action: rauc-bundle
   - action: raw
   - action: run
   - action: unpack

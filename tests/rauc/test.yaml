@@ -1,0 +1,18 @@
+{{- $architecture := or .architecture "amd64"}}
+
+architecture: {{$architecture}}
+
+actions:
+  #- action: debootstrap
+  #  suite: bullseye
+  #  variant: minbase
+  #  merged-usr: true
+
+  - action: unpack
+    description: Unpack ospack
+    file: debian-example-ospack-bullseye-arm64.tar.gz
+
+  # TODO actually create a bundle
+  # TODO see doc/examples/rauc-bundle/rauc-bundle.yaml instead
+  - action: rauc-bundle
+    description: Create a rauc bundle

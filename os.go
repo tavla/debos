@@ -72,3 +72,16 @@ exit 101
 
 	return nil
 }
+
+func (c *DebosContext) Mount(device string, mountPoint string) error {
+	// TODO mount
+	fmt.Printf("mount a device\n")
+	return nil
+}
+
+func (c *DebosContext) Unmount(mountPoint string) error {
+	// TODO mount
+	fmt.Printf("unmount mountpoint\n")
+	return nil
+}
+

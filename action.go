@@ -2,8 +2,9 @@ package debos
 
 import (
 	"bytes"
-	"github.com/go-debos/fakemachine"
 	"log"
+
+	"github.com/go-debos/fakemachine"
 )
 
 type DebosState int
@@ -21,6 +22,16 @@ type Partition struct {
 	DevicePath string
 }
 
+// Mapping from Device to MountPoint as configured in the image-partition
+// action for use by other actions
+type MountPoint struct {
+	Name       string
+	DevicePath string
+	MountPoint string
+	// TODO keep track of if mountpoints are mounted or not
+	Mounted bool
+}
+
 type CommonContext struct {
 	Scratchdir      string
 	Rootdir         string
@@ -28,6 +39,7 @@ type CommonContext struct {
 	Downloaddir     string
 	Image           string
 	ImagePartitions []Partition
+	ImageMounts     []MountPoint
 	ImageMntDir     string
 	ImageFSTab      bytes.Buffer // Fstab as per partitioning
 	ImageKernelRoot string       // Kernel cmdline root= snippet for the / of the image
@@ -41,17 +53,17 @@ type CommonContext struct {
 
 type DebosContext struct {
 	*CommonContext
-	RecipeDir       string
-	Architecture    string
+	RecipeDir    string
+	Architecture string
 }
 
 func (c *DebosContext) Origin(o string) (string, bool) {
-  if o == "recipe" {
-    return c.RecipeDir, true
-  } else {
-    path, found := c.Origins[o];
-    return path, found
-  }
+	if o == "recipe" {
+		return c.RecipeDir, true
+	} else {
+		path, found := c.Origins[o]
+		return path, found
+	}
 }
 
 type Action interface {

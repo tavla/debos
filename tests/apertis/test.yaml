@@ -18,3 +18,7 @@ actions:
     description: Install some base packages
     packages:
       - procps
+
+  - action: pack
+    description: Pack into tarball
+    file: apertis-ospack.tar.gz

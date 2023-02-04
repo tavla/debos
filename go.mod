@@ -12,5 +12,6 @@ require (
 	github.com/sjoerdsimons/ostree-go v0.0.0-20201014091107-8fae757256f8
 	github.com/stretchr/testify v1.8.2
 	gopkg.in/freddierice/go-losetup.v1 v1.0.0-20170407175016-fc9adea44124
+	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0
 )

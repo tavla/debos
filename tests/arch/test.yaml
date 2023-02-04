@@ -11,3 +11,7 @@ actions:
     description: Install some base packages
     packages:
       - procps
+
+  - action: pack
+    description: Pack into tarball
+    file: arch-ospack.tar.gz

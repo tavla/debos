@@ -1,7 +1,7 @@
 /*
 Package 'recipe' implements actions mapping to YAML recipe.
 
-Recipe syntax
+# Recipe syntax
 
 Recipe is a YAML file which is pre-processed though Golang
 text templating engine (https://golang.org/pkg/text/template)
@@ -14,20 +14,20 @@ Recipe is composed of 2 parts:
 
 Comments are allowed and should be prefixed with '#' symbol.
 
- # Declare variable 'Var'
- {{- $Var := "Value" -}}
+	# Declare variable 'Var'
+	{{- $Var := "Value" -}}
 
- # Header
- architecture: arm64
+	# Header
+	architecture: arm64
 
- # Actions are executed in listed order
- actions:
-   - action: ActionName1
-     property1: true
+	# Actions are executed in listed order
+	actions:
+	  - action: ActionName1
+	    property1: true
 
-   - action: ActionName2
-     # Use value of variable 'Var' defined above
-     property2: {{$Var}}
+	  - action: ActionName2
+	    # Use value of variable 'Var' defined above
+	    property2: {{$Var}}
 
 
 The following custom template functions are available
@@ -41,7 +41,7 @@ Mandatory properties for recipe:
 
 - actions -- at least one action should be listed
 
-Supported actions
+# Supported actions
 
 - apt -- https://godoc.org/github.com/go-debos/debos/actions#hdr-Apt_Action
 
@@ -67,6 +67,8 @@ Supported actions
 
 - raw -- https://godoc.org/github.com/go-debos/debos/actions#hdr-Raw_Action
 
+- rauc-bundle -- https://godoc.org/
+
 - recipe -- https://godoc.org/github.com/go-debos/debos/actions#hdr-Recipe_Action
 
 - run -- https://godoc.org/github.com/go-debos/debos/actions#hdr-Run_Action
@@ -78,6 +80,12 @@ package actions
 import (
 	"bytes"
 	"fmt"
+	"log"
+	"path"
+	"reflect"
+	"strings"
+	"text/template"
+
 	"github.com/go-debos/debos"
 	"gopkg.in/yaml.v2"
 	"github.com/alessio/shellescape"
@@ -133,6 +141,8 @@ func (y *YamlAction) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		y.Action = &ImagePartitionAction{}
 	case "filesystem-deploy":
 		y.Action = NewFilesystemDeployAction()
+	case "rauc-bundle":
+		y.Action = &RaucBundleAction{}
 	case "raw":
 		y.Action = &RawAction{}
 	case "download":
@@ -177,7 +187,7 @@ func DumpActionStruct(iface interface{}) string {
 const tabs = 2
 
 func DumpActions(iface interface{}, depth int) {
-	tab := strings.Repeat(" ", depth * tabs)
+	tab := strings.Repeat(" ", depth*tabs)
 	entries := reflect.ValueOf(iface)
 
 	for i := 0; i < entries.NumField(); i++ {
@@ -186,7 +196,7 @@ func DumpActions(iface interface{}, depth int) {
 			actions := reflect.ValueOf(entries.Field(i).Interface())
 			for j := 0; j < actions.Len(); j++ {
 				yaml := reflect.ValueOf(actions.Index(j).Interface())
-				DumpActionFields(yaml.Field(0).Interface(), depth + 1)
+				DumpActionFields(yaml.Field(0).Interface(), depth+1)
 			}
 		} else {
 			log.Printf("%s  %s: %v\n", tab, entries.Type().Field(i).Name, entries.Field(i).Interface())
@@ -195,7 +205,7 @@ func DumpActions(iface interface{}, depth int) {
 }
 
 func DumpActionFields(iface interface{}, depth int) {
-	tab := strings.Repeat(" ", depth * tabs)
+	tab := strings.Repeat(" ", depth*tabs)
 	entries := reflect.ValueOf(iface).Elem()
 
 	for i := 0; i < entries.NumField(); i++ {

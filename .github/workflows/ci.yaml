@@ -138,6 +138,8 @@ jobs:
             test: { name: "apertis", case: "apertis" }
           - backend: { name: "uml", backend: "--fakemachine-backend=uml" }
             test: { name: "partitioning", case: "partitioning" }
+          - backend: { name: "uml", backend: "--fakemachine-backend=uml" }
+            test: { name: "rauc-bundle", case: "partitioning" }
     name: ${{matrix.test.name}} on ${{matrix.backend.name}}
     steps:
       - name: Repository checkout
