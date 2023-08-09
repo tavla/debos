@@ -16,6 +16,13 @@ on:
   workflow_dispatch:
 
 jobs:
+  kvm-check:
+    runs-on: [self-hosted, Linux, X64, kvm]
+    name: KVM Check
+    steps:
+      - name: Check /dev/kvm exists
+        run: ls -la /dev
+
   test:
     strategy:
       fail-fast: false
