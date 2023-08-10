@@ -138,6 +138,10 @@ jobs:
             test: { name: "apertis", case: "apertis" }
           - backend: kvm
             test: { name: "kali", case: "kali" }
+          - backend: kvm
+            test: { name: "apertis v2022", case: "apertis", variables: "-t suite:v2022" }
+          - backend: kvm
+            test: { name: "apertis v2024dev3", case: "apertis", variables: "-t suite:v2024dev3 -t parent_suite:bookworm" }
     name: ${{matrix.test.name}} on ${{matrix.backend}}
     runs-on: ${{ matrix.backend == 'kvm' && 'kvm' || 'ubuntu-latest' }}
     steps:
